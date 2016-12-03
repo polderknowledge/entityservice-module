@@ -15,23 +15,15 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 
 class EntityServiceManagerFactory implements FactoryInterface
 {
-    private $shouldCreateV2 = false;
-
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         $options = $options ?: [];
 
-        if ($this->shouldCreateV2) {
-            return new EntityServiceManagerV2($container, $options);
-        }
-
-        return new EntityServiceManagerV3($container, $options);
+        return new EntityServiceManager($container, $options);
     }
 
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $this->shouldCreateV2 = true;
-
         // @codeCoverageIgnoreStart
         if (method_exists($serviceLocator, 'getServiceLocator')) {
             $serviceLocator = $serviceLocator->getServiceLocator();

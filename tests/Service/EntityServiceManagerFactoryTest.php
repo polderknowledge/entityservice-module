@@ -12,8 +12,7 @@ namespace PolderKnowledge\EntityServiceTest\Service;
 use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_TestCase;
 use PolderKnowledge\EntityService\Service\EntityServiceManagerFactory;
-use PolderKnowledge\EntityService\Service\EntityServiceManagerV2;
-use PolderKnowledge\EntityService\Service\EntityServiceManagerV3;
+use PolderKnowledge\EntityService\Service\EntityServiceManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class EntityServiceManagerFactoryTest extends PHPUnit_Framework_TestCase
@@ -32,7 +31,7 @@ class EntityServiceManagerFactoryTest extends PHPUnit_Framework_TestCase
         $result = $factory($container, 'stdClass', null);
 
         // Assert
-        $this->assertInstanceOf(EntityServiceManagerV3::class, $result);
+        $this->assertInstanceOf(EntityServiceManager::class, $result);
     }
 
     /**
@@ -50,6 +49,6 @@ class EntityServiceManagerFactoryTest extends PHPUnit_Framework_TestCase
         $result = $factory->createService($serviceLocator);
 
         // Assert
-        $this->assertInstanceOf(EntityServiceManagerV2::class, $result);
+        $this->assertInstanceOf(EntityServiceManager::class, $result);
     }
 }
