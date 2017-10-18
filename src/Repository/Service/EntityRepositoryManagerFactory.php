@@ -10,6 +10,7 @@
 namespace PolderKnowledge\EntityService\Repository\Service;
 
 use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Config;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -19,7 +20,28 @@ class EntityRepositoryManagerFactory implements FactoryInterface
     {
         $options = $options ?: [];
 
-        return new EntityRepositoryManager($container, $options);
+        $pluginManager = new EntityRepositoryManager($container, $options);
+
+        // If this is in a zend-mvc application, the ServiceListener will inject
+        // merged configuration during bootstrap.
+        if ($container->has('ServiceListener')) {
+            return $pluginManager;
+        }
+
+        // If we do not have a config service, nothing more to do
+        if (! $container->has('config')) {
+            return $pluginManager;
+        }
+
+        $config = $container->get('config');
+        // If we do not have log_filters configuration, nothing more to do
+        if (! isset($config['entity_repository_manager']) || ! is_array($config['entity_repository_manager'])) {
+            return $pluginManager;
+        }
+        // Wire service configuration for log_filters
+        (new Config($config['entity_repository_manager']))->configureServiceManager($pluginManager);
+
+        return $pluginManager;
     }
 
     public function createService(ServiceLocatorInterface $serviceLocator)

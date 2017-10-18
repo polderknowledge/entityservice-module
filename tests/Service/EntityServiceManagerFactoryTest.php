@@ -51,4 +51,81 @@ class EntityServiceManagerFactoryTest extends PHPUnit_Framework_TestCase
         // Assert
         $this->assertInstanceOf(EntityServiceManager::class, $result);
     }
+
+    /**
+     * @covers PolderKnowledge\EntityService\Service\EntityServiceManagerFactory::__invoke
+     */
+    public function testFactoryIsProvisionedWithConfig()
+    {
+        // Arrange
+        $factory = new EntityServiceManagerFactory();
+
+        $container = $this->getMockForAbstractClass(ContainerInterface::class);
+        $container->expects(static::exactly(2))
+            ->method('has')
+            ->with($this->logicalOr(
+                $this->equalTo('config'),
+                $this->equalTo('ServiceListener')
+            ))
+            ->willReturnCallback(function ($argument) {
+                if ('config' === $argument) {
+                    return true;
+                }
+
+                return false;
+            });
+
+        $container->expects(static::once())
+            ->method('get')
+            ->with('config')
+            ->willReturn(['entity_service_manager' => [
+                'factories' => [
+                    'MyClass' => 'MyClassFactory'
+                ]
+            ]]);
+
+        // Act
+        $result = $factory($container, 'stdClass', null);
+
+        // Assert
+        $this->assertInstanceOf(EntityServiceManager::class, $result);
+        $this->assertTrue($result->has('MyClass'));
+    }
+
+    public function testFactoryIsProvisingWithConfigIsSkippedForMvc()
+    {
+        // Arrange
+        $factory = new EntityServiceManagerFactory();
+
+        $container = $this->getMockForAbstractClass(ContainerInterface::class);
+        $container->expects(static::exactly(1))
+            ->method('has')
+            ->with($this->logicalOr(
+                $this->equalTo('config'),
+                $this->equalTo('ServiceListener')
+            ))
+            ->willReturnCallback(function ($argument) {
+                if ('ServiceListener' === $argument) {
+                    return true;
+                }
+
+                return false;
+            });
+
+        $container->expects(static::never())
+            ->method('get')
+            ->with('config')
+            ->willReturn(['entity_service_manager' => [
+                'factories' => [
+                    'MyClass' => 'MyClassFactory'
+                ]
+            ]]);
+
+        // Act
+        $result = $factory($container, 'stdClass', null);
+
+        // Assert
+        $this->assertInstanceOf(EntityServiceManager::class, $result);
+        $this->assertFalse($result->has('MyClass'));
+    }
 }
