@@ -29,13 +29,13 @@ class EntityServiceManagerFactory implements FactoryInterface
         }
 
         // If we do not have a config service, nothing more to do
-        if (! $container->has('config')) {
+        if (!$container->has('config')) {
             return $pluginManager;
         }
 
         $config = $container->get('config');
         // If we do not have log_filters configuration, nothing more to do
-        if (! isset($config['entity_service_manager']) || ! is_array($config['entity_service_manager'])) {
+        if (!isset($config['entity_service_manager']) || !is_array($config['entity_service_manager'])) {
             return $pluginManager;
         }
         // Wire service configuration for log_filters
